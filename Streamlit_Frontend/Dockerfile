@@ -1,5 +1,5 @@
 # Use a specific version of Python as the base image
-FROM python:3.10.8
+FROM python:3.12.0
 
 # Create the app directory structure
 RUN mkdir -p /app/frontend
