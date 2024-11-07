@@ -1,21 +1,18 @@
-# Use a specific version of Python as the base image
-FROM python:3.12.0
+# Frontend/Dockerfile
 
-# Create the app directory structure
-RUN mkdir -p /app/frontend
+FROM python:3.10.8
 
-# Copy the frontend code into the container
-COPY Streamlit_Frontend /app/frontend
+RUN mkdir -p app/frontend
 
-# Set the working directory inside the container
+COPY Streamlit_Frontend app/frontend
+
 WORKDIR /app/frontend
 
-# Upgrade pip and install dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Expose the port Streamlit uses
 EXPOSE 8501
 
-# Run the Streamlit app
-CMD ["streamlit", "run", "Hello.py"]
+ENTRYPOINT ["streamlit","run"]
+
+CMD ["Hello.py"]

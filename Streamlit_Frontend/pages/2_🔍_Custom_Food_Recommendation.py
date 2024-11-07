@@ -23,11 +23,12 @@ class Recommendation:
         generator = Generator(self.nutrition_list, ingredients, params)
         recommendations = generator.generate()
         
-        # Check if the recommendations were generated successfully
+        # Ensure recommendations are in the expected format
         if recommendations:
             recommendations = recommendations.json().get('output', [])
             for recipe in recommendations:
-                recipe['image_link'] = find_image(recipe['Name'])
+                if isinstance(recipe, dict):  # Ensure each recipe is a dictionary
+                    recipe['image_link'] = find_image(recipe['Name'])
         return recommendations
 
 class Display:
@@ -41,27 +42,28 @@ class Display:
             for column, row in zip(st.columns(5), range(5)):
                 with column:
                     for recipe in recommendations[rows * row:rows * (row + 1)]:
-                        recipe_name = recipe['Name']
-                        expander = st.expander(recipe_name)
-                        recipe_link = recipe['image_link']
-                        recipe_img = f'<div><center><img src="{recipe_link}" alt="{recipe_name}"></center></div>'
-                        nutritions_df = pd.DataFrame({value: [recipe[value]] for value in nutrition_values})
-                        
-                        expander.markdown(recipe_img, unsafe_allow_html=True)
-                        expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Nutritional Values (g):</h5>', unsafe_allow_html=True)
-                        expander.dataframe(nutritions_df)
-                        expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Ingredients:</h5>', unsafe_allow_html=True)
-                        for ingredient in recipe['RecipeIngredientParts']:
-                            expander.markdown(f"- {ingredient}")
-                        expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Recipe Instructions:</h5>', unsafe_allow_html=True)
-                        for instruction in recipe['RecipeInstructions']:
-                            expander.markdown(f"- {instruction}")
-                        expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Cooking and Preparation Time:</h5>', unsafe_allow_html=True)
-                        expander.markdown(f"""
-                            - Cook Time       : {recipe['CookTime']} min
-                            - Preparation Time: {recipe['PrepTime']} min
-                            - Total Time      : {recipe['TotalTime']} min
-                        """)
+                        if isinstance(recipe, dict):  # Ensure each recipe is a dictionary
+                            recipe_name = recipe['Name']
+                            expander = st.expander(recipe_name)
+                            recipe_link = recipe['image_link']
+                            recipe_img = f'<div><center><img src="{recipe_link}" alt="{recipe_name}"></center></div>'
+                            nutritions_df = pd.DataFrame({value: [recipe[value]] for value in nutrition_values})
+                            
+                            expander.markdown(recipe_img, unsafe_allow_html=True)
+                            expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Nutritional Values (g):</h5>', unsafe_allow_html=True)
+                            expander.dataframe(nutritions_df)
+                            expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Ingredients:</h5>', unsafe_allow_html=True)
+                            for ingredient in recipe['RecipeIngredientParts']:
+                                expander.markdown(f"- {ingredient}")
+                            expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Recipe Instructions:</h5>', unsafe_allow_html=True)
+                            for instruction in recipe['RecipeInstructions']:
+                                expander.markdown(f"- {instruction}")
+                            expander.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Cooking and Preparation Time:</h5>', unsafe_allow_html=True)
+                            expander.markdown(f"""
+                                - Cook Time       : {recipe['CookTime']} min
+                                - Preparation Time: {recipe['PrepTime']} min
+                                - Total Time      : {recipe['TotalTime']} min
+                            """)
         else:
             st.info("Couldn't find any recipes with the specified ingredients", icon="🙁")
 
@@ -70,12 +72,12 @@ class Display:
             st.subheader('Overview:')
             col1, col2, col3 = st.columns(3)
             with col2:
-                recipe_names = [recipe.get('Name') for recipe in recommendations if 'Name' in recipe]
+                recipe_names = [recipe['Name'] for recipe in recommendations if isinstance(recipe, dict) and 'Name' in recipe]
                 selected_recipe_name = st.selectbox('Select a recipe', recipe_names)
             
             st.markdown(f'<h5 style="text-align: center;font-family:sans-serif;">Nutritional Values:</h5>', unsafe_allow_html=True)
             
-            selected_recipe = next((recipe for recipe in recommendations if recipe.get('Name') == selected_recipe_name), None)
+            selected_recipe = next((recipe for recipe in recommendations if isinstance(recipe, dict) and recipe.get('Name') == selected_recipe_name), None)
             if selected_recipe:
                 options = {
                     "title": {"text": "Nutrition values", "subtext": f"{selected_recipe_name}", "left": "center"},
