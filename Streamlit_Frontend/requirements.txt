@@ -2,13 +2,12 @@ beautifulsoup4==4.11.1
 streamlit==1.16.0
 streamlit-echarts==0.4.0
 requests==2.28.1
+numpy>=1.23.0,<1.26.0
+pandas>=1.5.0,<2.0.0
 
 # Additional dependencies for building packages
 setuptools>=50.0.0
 wheel>=0.36.2
-numpy>=1.23.0,<1.26.0
-pandas>=1.5.0,<2.0.0
-scipy>=1.9.0,<2.0.0
-scikit-learn>=1.1.0,<1.2.0
-matplotlib>=3.5.0,<4.0.0
+
+
 
